@@ -22,23 +22,23 @@ class Gender(models.Model):
         db_table = 'genders'
 
 
-class OrderedStatus(models.Model):
+class OrderStatus(models.Model):
     status = models.CharField(max_length=30)
 
     class Meta:
-        db_table = 'ordered_statues'
+        db_table = 'order_status'
 
 
-class OrderedProduct(models.Model):
+class OrderProduct(models.Model):
     quantity            = models.IntegerField()
-    ordered_status      = models.ForeignKey('OrderedStatus', on_delete=models.CASCADE)
+    order_status        = models.ForeignKey('OrderStatus', on_delete=models.CASCADE)
     user                = models.ForeignKey('User', on_delete=models.CASCADE)
     product_information = models.ForeignKey('products.ProductInformation', on_delete=models.CASCADE)
     created_at          = models.DateTimeField(auto_now_add=True)
     updated_at          = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'ordered_products'
+        db_table = 'order_products'
 
 
 class Cart(models.Model):
@@ -54,9 +54,9 @@ class Cart(models.Model):
 
 class Review(models.Model):
     rating     = models.IntegerField()
-    comment    = models.TextField() # 길이제한을 없애기 위하여 TextField 사용
-    user       = models.ForeignKey('User', on_delete=models.PROTECT) # 유저가 탈퇴했을 경우에도 리뷰는 변함이 없어야하기 때문에 PROTECT 사용
-    product    = models.ForeignKey('products.Product', on_delete=models.CASCADE) # 제품이 삭제된 경우엔 리뷰도 같이 사라지기 때문에 CASCADE 사용
+    comment    = models.TextField()
+    user       = models.ForeignKey('User', on_delete=models.PROTECT)
+    product    = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
