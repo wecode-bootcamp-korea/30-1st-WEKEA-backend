@@ -1,4 +1,3 @@
-from os import access
 import re, jwt
 
 from functools import wraps
