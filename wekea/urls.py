@@ -1,6 +1,8 @@
 from django.urls import path, include
 
 urlpatterns = [
-#     path('users', include('users.urls')),
-#     path('products', include('products.urls'))
+# http://127.0.0.1:8000/users
+    path('users', include('users.urls')),
+# http://127.0.0.1:8000/products
+    # path('products', include('products.urls'))
 ]
