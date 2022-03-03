@@ -1,0 +1,7 @@
+User,,,,,,,Gender,,OderStatus,,OderProduct,,Cart,
+,full_name,email,password,membership,address,phone_number,,gender,,status,,quantity,,quantity
+1,김광일,kwangil0803@gmail.com,123456!@qw,TRUE,인천,010-1234-5678,1,남,1,상품준비중,,,,
+2,김산,cloudhat17@gmail.com,123457!@qw,FALSE,흑석,010-1234-5679,1,남,2,배송중,,,,
+3,안광민,kwangmony@gmail.com,123458!@qw,TRUE,용인,010-1234-5680,1,남,3,배송완료,,,,
+4,유강호,kangsick98@gmail.com,123459!@qw,FALSE,인천,010-1234-5681,2,여,2,배송중,,,,
+5,조진목,jjmok1127@gmail.com,123460!@qw,TRUE,대구,010-1234-5682,1,남,4,배송지연,,,,
