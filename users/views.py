@@ -1,10 +1,10 @@
 import json, bcrypt, jwt
 
-from django.http  import JsonResponse
+from django.http  import HttpResponse, JsonResponse
 from django.views import View
 
 from .models     import User
-from .utils import validation_email ,validation_password
+from .utils      import is_valid
 from my_settings import SECRET_KEY, ALGORITHM    
 
 
@@ -21,20 +21,20 @@ class SignUpView(View):
             gender_id       = data["gender_id"]
             password        = data["password"]
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            
-            if "" in data.values():
-                return JsonResponse({"message" : "EMPTY_DATA"}, status = 400)
 
-            if not validation_email(email):
-                return JsonResponse({"message" : "INVALID_EMAIL"}, status = 400)
+            is_valid(data.value())
 
-            if not validation_password(password):
-                return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 400)
+            # if "" in data.values():
+            #     return JsonResponse({"message" : "EMPTY_DATA"}, status = 400)
 
-            if User.objects.filter(email = email).exists():
-                return JsonResponse({"message" : "ALREADY_EXIST_EMAIL"}, status = 400)
-            
+            # if not validation_email(email):
+            #     return JsonResponse({"message" : "INVALID_EMAIL"}, status = 400)
 
+            # if not validation_password(password):
+            #     return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 400)
+
+            # if User.objects.filter(email = email).exists():
+            #     return JsonResponse({"message" : "ALREADY_EXIST_EMAIL"}, status = 400)
 
             User.objects.create(
                 full_name    = full_name,
@@ -46,7 +46,7 @@ class SignUpView(View):
                 gender_id    = gender_id
             )
             
-            return JsonResponse({"message" : "SUCCESS"}, status = 201)
+            return HttpResponse(status = 201)
 
         except KeyError:
             return JsonResponse({"message" : "KEYERROR"}, status = 400)
@@ -69,7 +69,7 @@ class LogInView(View):
             if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 400)
                             
-            return JsonResponse({"message" : "SUCCESS", "ACCESS_TOKEN" : access_token}, status = 201)
+            return JsonResponse({"access_token" : access_token}, status = 201)
 
         except KeyError:
             return JsonResponse({"message" : "KEYERROR"}, status = 400)

@@ -33,3 +33,16 @@ def login_decorator(func):
             return JsonResponse({ "message" : "INVALID_USER"}, status = 401)
 
     return wrapper
+
+def is_valid(*args):
+        if "" in data.values():
+            return JsonResponse({"message" : "EMPTY_DATA"}, status = 400)
+
+        if not validation_email(email):
+            return JsonResponse({"message" : "INVALID_EMAIL"}, status = 400)
+
+        if not validation_password(password):
+            return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 400)
+
+        if User.objects.filter(email = email).exists():
+                return JsonResponse({"message" : "ALREADY_EXIST_EMAIL"}, status = 400)
