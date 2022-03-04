@@ -382,3 +382,8 @@ zsdoc/data
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,linux,macos,zsh,visualstudiocode,vim
 
 my_settings.py
+dummy_data.py
+data_products.csv
+data_users.csv
+#무시할 폴더
+dummy_data
