@@ -1,4 +1,4 @@
-import re
+import re, bcrypt
 
 from users.models import User
 
@@ -16,9 +16,6 @@ def is_valid(data):
         return False
 
     if not validation_password:
-        return False
-
-    if User.objects.filter(email = email).exists():
         return False
 
     return True
