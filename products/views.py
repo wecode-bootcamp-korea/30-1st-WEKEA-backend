@@ -19,8 +19,8 @@ def carculate_average_rating(product_id):
     number_of_review = 0
     review_list      = Review.objects.filter(product_id=product_id)
     
-    for review in review_list.values():
-        rating = review['rating']
+    for review in review_list:
+        rating = review.rating
         sum += rating
         number_of_review += 1
     
@@ -30,88 +30,67 @@ def carculate_average_rating(product_id):
     average_rating=sum/number_of_review
     return average_rating
 
-#개별 product의 image_url을 리스트로 반환하는 메소드
-def get_image_url_list(product_id):
-    image_list        = []
-    image_object_list = Image.objects.values().filter(product_id=product_id)
-    for image_object in image_object_list:
-        image_url = image_object['image_url']
-        image_list.append(image_url)
- 
-    return image_list
-#개별 product의 remaining_stock가 존재하는 store,color,size를 반환하는 메소드
-def get_product_information(product_id):
-    temp_store = {}
-    temp_color = {}
-    temp_size  = {}
+#product의 모든 정보와 defualt_filter_option을 리턴하는 함수
+def get_product_data(sub_category_id):
+    product_data_list   = []
+    product_image_list = []   
+    temp_defualt_store_option = {}
+    temp_defualt_color_option = {}
+    temp_defualt_size_option = {}  
+    temp_defualt_max_price = 0   
+    product_list=Product.objects.filter(sub_category_id=sub_category_id)
     
-    product_object_list=ProductInformation.objects.values().filter(product_id=product_id)
+    for product_object in product_list:    
+                product_image_list = [] 
+                temp_store = {}
+                temp_color = {}
+                temp_size  = {}
+                temp_remaining_stock = 0
 
-    for product_object in product_object_list:
-        if product_object['remaining_stock']: #재고가 0이 아닐 경우
-            product_store= Store.objects.values().get(id=product_object['store_id'])['name']
-            product_color= Color.objects.values().get(id=product_object['color_id'])['name']
-            product_size= Size.objects.values().get(id=product_object['size_id'])['size']
-            
-            temp_store[product_store] = True
-            temp_color[product_color] = True
-            temp_size[product_size]   = True
-            
+                temp_defualt_max_price = max(temp_defualt_max_price,product_object.price)
 
-    return list(temp_store), list(temp_color), list(temp_size)
-
-
-#product의 모든 정보를 리턴하는 함수
-def get_product_data(product_id_list):
-    product_data_list   = []          
-    
-    for product_id in product_id_list:    
-                store_list, color_list, size_list = get_product_information(product_id)
-                product_object=Product.objects.values().get(id=product_id)
+                for image_object in product_object.image_set.all():
+                    product_image_list.append(image_object.image_url)
+                
+                for productinformations in product_object.productinformation_set.all():
+                    if productinformations.remaining_stock:
+                        temp_store[productinformations.store.name] = True
+                        temp_color[productinformations.color.name] = True
+                        temp_size[productinformations.size.size]   = True
+                        temp_remaining_stock = temp_remaining_stock + productinformations.remaining_stock
+                        
+                        #defualt option도 구해줌
+                        temp_defualt_store_option[productinformations.store.name] = True
+                        temp_defualt_color_option[productinformations.color.name] = True
+                        temp_defualt_size_option[productinformations.size.size]   = True
+                        
+                
                 product_data = {
-                    'name'           : product_object['name'],
-                    'price'          : int(product_object['price']),
-                    'description'    : product_object["description"],
-                    'average_rating' : carculate_average_rating(product_id),
-                    'image_list'     : get_image_url_list(product_id),
-                    'store_list'     : store_list,
-                    'color_list'     : color_list,
-                    'size_list'      : size_list
-                    }        
+                        'name'           : product_object.name,
+                        'price'          : int(product_object.price),
+                        'description'    : product_object.description,
+                        #'average_rating' : carculate_average_rating(product_id),
+                        'image_list'     : product_image_list,
+                        'store_list'     : list(temp_store),
+                        'color_list'     : list(temp_color),
+                        'size_list'      : list(temp_size),
+                        'remaining_stock' : temp_remaining_stock
+                        }           
                 product_data_list.append(product_data)
     
-    return product_data_list     
-        
-#해당 subcategory의 모든 옵션들을 리턴하는 함수
-def get_defualt_filter_options(product_data_list):
-    temp_default_filtering_option = {"price":{} ,"store":{}, "color":{}, "size":{} } 
-    for product_data in product_data_list:
-
-            temp_default_filtering_option["price"][product_data["price"]]=True
-            for store in product_data['store_list']:
-                temp_default_filtering_option["store"][store]=True
-            for color in product_data['color_list']:
-                temp_default_filtering_option["color"][color]=True
-            for size in product_data['size_list']:
-                temp_default_filtering_option["size"][size]=True    
-    
-    default_filter_price=list(temp_default_filtering_option['price'])
-    default_filter_store=list(temp_default_filtering_option['store'])
-    default_filter_color=list(temp_default_filtering_option['color'])
-    default_filter_size=list(temp_default_filtering_option['color'])
-    default_filter_price.sort(reverse=True)
-    print
-    default_filtering_option= {
-        'price': default_filter_price, 
-        'store': default_filter_store,
-        'color': default_filter_color,
-        'size' : default_filter_size
+    default_filtering_options= {
+        'price': int(temp_defualt_max_price), 
+        'store': list(temp_defualt_store_option),
+        'color': list(temp_defualt_color_option),
+        'size' : list(temp_defualt_size_option)
         }
 
-    return default_filtering_option
+    return product_data_list , default_filtering_options     
+
+
 #아직 미구현 함수
 def get_filterd_product_id(filter_options):
-    option_key_dict={'size':1,'color':2,'store':3,'discount':4,'sort':5}
+    option_key_dict={'size':1,'color':2,'store':3,'min_price':4,'max_price':5,'discount':6,'sort':7}
     q=Q()
     target_product_id_list=[]
     options=filter_options.split(',')
@@ -120,8 +99,22 @@ def get_filterd_product_id(filter_options):
         key=option.split(':')[0]
         value_list=str(option.split(':')[1]).split('|')
         if value_list[0]!='null':  #만약 value가 null이 아닌 경우
-            print("미구현")
-
+            if option_key_dict[key]==1:
+                for value in value_list:
+                    q.add(Q(size=value) , q.OR)
+                    print(q)
+            elif option_key_dict[key]==2:
+                print()
+            elif option_key_dict[key]==3:
+                print()  
+            elif option_key_dict[key]==4:
+                print()      
+            elif option_key_dict[key]==5:
+                print()
+            elif option_key_dict[key]==6:
+                print()
+            elif option_key_dict[key]==7:
+                print()    
 
 class ProductListView(View):
     def get(self,request):
@@ -132,24 +125,25 @@ class ProductListView(View):
             filter_options        = request.GET.get('filter_option')
             
             #필터 예시
-            filter_options ='size:X|XL|S,color:blue|black,store:광명점|기흥점,discount:null,sort:high-price'
+            filter_options ='size:X|XL|S,color:blue|black,store:광명점|기흥점,min_price:0,max_price:1000000,discount:null,sort:high-price'
                     
-            if default_filter_bolean:  #필터링 적용했을 떄  (아직 미구현)
-                 get_filterd_product_id(filter_options)
-
-            else: #필터링 적용 안함 
-                product_list     = Product.objects.values().filter(sub_category_id=sub_category_id) 
-                product_id_list  = []
-                for product_object in product_list: #product_id만 리스트에 저장
-                        product_id_list.append(product_object["id"])
+            if default_filter_bolean:  #필터링 적용 안하는 경우 
+                    
                 #1)subcategory를 외래키로 갖는 모든 product들을 저장
-                product_data_list=get_product_data(product_id_list)
+                product_data_list,default_filtering_options =get_product_data(sub_category_id)
                 result['product_data_list']=product_data_list
+                result['defualt_filter_options'] = default_filtering_options
+                
+                #2)제품의 카테고리를 출력 ex)의자/사무용의자
+                SubCategory_object = SubCategory.objects.get(id=sub_category_id)
+                sub_category_name  = SubCategory_object.name
+                main_category_name = SubCategory_object.main_category.name
+                product_hierarchy  = main_category_name+"/"+sub_category_name
+                result['product_hierarchy']=product_hierarchy
 
-                #2)가능한 모든 경우의 옵션을 저장 (소비자가 처음 보는 화면의 필터링 옵션ㄹ퓨 )
-                defualt_filter_options           = get_defualt_filter_options(product_data_list)
-                result['defualt_filter_options'] = defualt_filter_options
-            
+            else: #필터링 적용했을 떄  (아직 미구현)
+                get_filterd_product_id(filter_options)
+
             return JsonResponse({'message' : 'SUCCESS','result':result}, status = 201)
 
         except KeyError:
