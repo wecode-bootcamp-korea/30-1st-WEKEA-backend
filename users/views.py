@@ -13,6 +13,7 @@ class SignUpView(View):
         try:
             data = json.loads(request.body)
 
+            validation_result = is_valid(data)
             full_name         = data["full_name"]
             email             = data["email"]
             membership        = data["membership"]
@@ -21,7 +22,6 @@ class SignUpView(View):
             gender_id         = data["gender_id"]
             password          = data["password"]
             hashed_password   = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            validation_result = is_valid(data)
             
             if validation_result:
                 return JsonResponse({"message" : validation_result}, status = 400)
