@@ -8,8 +8,11 @@ from users.models import User
 from my_settings  import SECRET_KEY, ALGORITHM
 
 def is_valid(data):
-    validation_email    = re.match(r"^(\w+[+-_.]?\w?)+@([\w+-_.]+[.][\w+-_.]+)$", data["email"])
-    validation_password = re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&?*])([a-zA-Z0-9!@#$%^&?*]){8,}$", data["password"])
+    email    = data["email"]
+    password = data["password"]
+
+    validation_email    = re.match(r"^(\w+[+-_.]?\w?)+@([\w+-_.]+[.][\w+-_.]+)$", email)
+    validation_password = re.match(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&?*])([a-zA-Z0-9!@#$%^&?*]){8,}$", password)
 
     if "" in data.values():
         return "EMPTY_DATA"
@@ -20,7 +23,7 @@ def is_valid(data):
     if not validation_password:
         return "INVALID_PASSWORD"
 
-    if User.objects.filter(email = data["email"]).exists():
+    if User.objects.filter(email = email).exists():
         return "ALREADY_EXIST_EMAIL"
 
     return False
