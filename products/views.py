@@ -60,10 +60,6 @@ def get_product_information(product_id):
 
     return list(temp_store), list(temp_color), list(temp_size)
 
-def get_default_filtering_option():
-    default_filtering_option={}
-
-    return default_filtering_option
 
 #product의 모든 정보를 리턴하는 함수
 def get_product_data(product_id_list):
