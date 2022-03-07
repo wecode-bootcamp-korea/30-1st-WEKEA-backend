@@ -51,7 +51,7 @@ class LogInView(View):
             email        = data["email"]
             password     = data["password"]
             user         = User.objects.get(email = email)
-            payload      = {'user' : user.id, 'exp' : datetime.now() + timedelta(days=1)}
+            payload      = {'user' : user.id, 'exp' : datetime.now() + timedelta(hour=1)}
             access_token = jwt.encode(payload, SECRET_KEY, ALGORITHM)
             
             if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
