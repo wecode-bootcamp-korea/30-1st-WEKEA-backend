@@ -14,7 +14,7 @@ class Product(models.Model):
 
 class Discount(models.Model):
     rate = models.IntegerField(default=0)
-    type = models.CharField()
+    type = models.CharField(max_length=20)
 
     class Meta:
         db_table = 'discounts'
