@@ -13,17 +13,17 @@ class SignUpView(View):
         try:
             data = json.loads(request.body)
 
-            full_name       = data["full_name"]
-            email           = data["email"]
-            membership      = data["membership"]
-            address         = data["address"]
-            phone_number    = data["phone_number"]
-            gender_id       = data["gender_id"]
-            password        = data["password"]
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-            if is_valid(data):
-                return JsonResponse({"message" : is_valid(data)}, status = 400)
+            full_name         = data["full_name"]
+            email             = data["email"]
+            membership        = data["membership"]
+            address           = data["address"]
+            phone_number      = data["phone_number"]
+            gender_id         = data["gender_id"]
+            password          = data["password"]
+            hashed_password   = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            validation_result = is_valid(data)
+            if validation_result:
+                return JsonResponse({"message" : validation_result}, status = 400)
 
             User.objects.create(
                 full_name    = full_name,
