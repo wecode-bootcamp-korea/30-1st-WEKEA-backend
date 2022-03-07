@@ -23,8 +23,8 @@ class SignUpView(View):
             password          = data["password"]
             hashed_password   = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             
-            if validation_result:
-                return JsonResponse({"message" : validation_result}, status = 400)
+            if not validation_result:
+                return JsonResponse({"message" : "INVALID_INPUT_INFORMATION"}, status = 400)
 
             User.objects.create(
                 full_name    = full_name,
@@ -46,16 +46,17 @@ class LogInView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+            
+            validation_result = is_valid(data)
+            email             = data["email"]
+            password          = data["password"]
 
-            email    = data["email"]
-            password = data["password"]
-
-            if not User.objects.filter(email = email).exists():
+            if validation_result:
                 return JsonResponse({"message" : "INVALID_USER"}, status = 400)
 
             user         = User.objects.get(email = email)
             access_token = jwt.encode({'id' : user.id}, SECRET_KEY, ALGORITHM)
-
+            
             if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 400)
                             
@@ -63,3 +64,5 @@ class LogInView(View):
 
         except KeyError:
             return JsonResponse({"message" : "KEYERROR"}, status = 400)
+
+        
