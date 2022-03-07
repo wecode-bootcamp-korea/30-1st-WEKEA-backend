@@ -4,7 +4,7 @@ from django.http  import HttpResponse, JsonResponse
 from django.views import View
 
 from .models     import User
-from .utils      import is_valid
+from .utils      import *
 from my_settings import SECRET_KEY, ALGORITHM    
 
 
@@ -22,19 +22,8 @@ class SignUpView(View):
             password        = data["password"]
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-            is_valid(data.value())
-
-            # if "" in data.values():
-            #     return JsonResponse({"message" : "EMPTY_DATA"}, status = 400)
-
-            # if not validation_email(email):
-            #     return JsonResponse({"message" : "INVALID_EMAIL"}, status = 400)
-
-            # if not validation_password(password):
-            #     return JsonResponse({"message" : "INVALID_PASSWORD"}, status = 400)
-
-            # if User.objects.filter(email = email).exists():
-            #     return JsonResponse({"message" : "ALREADY_EXIST_EMAIL"}, status = 400)
+            if is_valid(data):
+                return JsonResponse({"message" : is_valid(data)}, status = 400)
 
             User.objects.create(
                 full_name    = full_name,
