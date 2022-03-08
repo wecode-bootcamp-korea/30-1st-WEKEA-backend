@@ -1,32 +1,24 @@
-from django.db.models import Q
+import math
 
-from .models      import ProductInformation
+from django.db.models import Avg, Sum
+
+from .models      import Product
 from users.models import Review
 
-def get_product_information(product_id):
-    temp_store      = set()
-    temp_color      = set()
-    temp_size       = set()
+def get_option(product_id):
+    product              = Product.objects.get(id = product_id)
+    product_informations = product.productinformation_set.all()
 
-    products = ProductInformation.objects.filter(Q(product_id = product_id) or Q(remaining_stock = 0))
-    zero_stock = [{"store" : list(set(product.store.name)), "color" : list(set(product.color.name)), "size" : list(set(product.size.size))} \
-                for product in products if product.remaining_stock == 0]
+    store = [product_information.store.name for product_information in product_informations]
+    color = [product_information.color.name for product_information in product_informations]
+    size  = [product_information.size.size for product_information in product_informations]
 
-    for product in products:
-        temp_store.add(product.store.name)
-        temp_color.add(product.color.name)
-        temp_size.add(product.size.size)
+    return {"store" : list(set(store)), "color" : list(set(color)), "size" : list(set(size))}
 
-
-    store_list = list(temp_store)
-    color_list = list(temp_color)
-    size_list  = list(temp_size)
-    store_list.sort()
-
-    return store_list, color_list, size_list, zero_stock
 
 def get_review_information(product_id):
-    reviews     = Review.objects.filter(product_id = product_id)
+    product     = Product.objects.get(id = product_id)
+    reviews     = product.review_set.all()
     review_list = []
 
     for review in reviews:
@@ -41,3 +33,30 @@ def get_review_information(product_id):
         review_list.append(review_information)
 
     return review_list
+
+
+def get_rating_average(product_id):
+    product = Product.objects.get(id = product_id)
+    reviews = product.review_set.all()
+
+    rating_average = math.floor(reviews.aggregate(Avg('rating'))['rating__avg']\
+                    if product.review_set.count() != 0 else 0)
+
+    return rating_average
+
+
+def get_discount_price(product_id):
+    product = Product.objects.get(id = product_id)
+
+    discount_price = product.price - (product.price * product.discount.rate / 100)
+
+    return discount_price
+
+
+def get_remaining_stock(product_id):
+    product              = Product.objects.get(id = product_id)
+    product_informations = product.productinformation_set.all()
+
+    remaining_stock = product_informations.aggregate(Sum("remaining_stock"))["remaining_stock__sum"]
+
+    return remaining_stock

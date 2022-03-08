@@ -24,7 +24,7 @@ class SignUpView(View):
             membership        = data["membership"]
             address           = data["address"]
             phone_number      = data["phone_number"]
-            gender_id         = Gender.objects.get(gender = data["gender_id"]).id
+            gender_id         = data["gender_id"]
             password          = data["password"]
             hashed_password   = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
