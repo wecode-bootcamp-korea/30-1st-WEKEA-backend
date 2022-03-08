@@ -9,7 +9,7 @@ def get_product_information(product_id):
     temp_size       = set()
 
     products = ProductInformation.objects.filter(Q(product_id = product_id) or Q(remaining_stock = 0))
-    zero_stock = [{"store" : product.store.name, "color" : product.color.name, "size" : product.size.size} \
+    zero_stock = [{"store" : list(set(product.store.name)), "color" : list(set(product.color.name)), "size" : list(set(product.size.size))} \
                 for product in products if product.remaining_stock == 0]
 
     for product in products:
