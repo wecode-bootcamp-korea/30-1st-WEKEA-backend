@@ -386,3 +386,4 @@ my_settings.py
 data_users.csv
 data_products.csv
 db_uploader.py
+dummy_data.py
