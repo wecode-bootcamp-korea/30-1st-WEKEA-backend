@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from .models      import ProductInformation
 from users.models import Review
 
@@ -5,19 +7,23 @@ def get_product_information(product_id):
     temp_store      = set()
     temp_color      = set()
     temp_size       = set()
-    product_objects = ProductInformation.objects.filter(product_id = product_id)
 
-    for product_object in product_objects:
-        temp_store.add(product_object.store.name)
-        temp_color.add(product_object.color.name)
-        temp_size.add(product_object.size.size)
+    products = ProductInformation.objects.filter(Q(product_id = product_id) or Q(remaining_stock = 0))
+    zero_stock = [{"store" : product.store.name, "color" : product.color.name, "size" : product.size.size} \
+                for product in products if product.remaining_stock == 0]
+
+    for product in products:
+        temp_store.add(product.store.name)
+        temp_color.add(product.color.name)
+        temp_size.add(product.size.size)
+
 
     store_list = list(temp_store)
     color_list = list(temp_color)
     size_list  = list(temp_size)
     store_list.sort()
 
-    return store_list, color_list, size_list
+    return store_list, color_list, size_list, zero_stock
 
 def get_review_information(product_id):
     reviews     = Review.objects.filter(product_id = product_id)
