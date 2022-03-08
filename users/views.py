@@ -15,6 +15,10 @@ class SignUpView(View):
             data = json.loads(request.body)
 
             validation_result = is_valid(data)
+            
+            if not validation_result:
+                return JsonResponse({"message" : "INVALID_INPUT_INFORMATION"}, status = 400)
+            
             full_name         = data["full_name"]
             email             = data["email"]
             membership        = data["membership"]
@@ -23,9 +27,6 @@ class SignUpView(View):
             gender_id         = data["gender_id"]
             password          = data["password"]
             hashed_password   = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            
-            if not validation_result:
-                return JsonResponse({"message" : "INVALID_INPUT_INFORMATION"}, status = 400)
 
             User.objects.create(
                 full_name    = full_name,
