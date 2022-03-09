@@ -3,6 +3,30 @@ from django.http                import JsonResponse
 from .models                    import SubCategory
 from .utils                     import get_defualt_filtering_options, get_product_data, get_Q
 
+class SubcategoryListView(View):
+    def get(self,request):
+        # try:       
+            main_category_id = request.GET.get('main_category_id')   
+
+            result                 = {}
+            sub_category_data_list = []
+
+            sub_category_list = SubCategory.objects.filter(main_category_id=main_category_id)
+
+            for sub_category_object in sub_category_list:
+                sub_category_data = {
+                    'sub_category_name'        : sub_category_object.name,
+                    'sub_category_description' : sub_category_object.description,
+                    'sub_category_image_url'   : sub_category_object.image_url
+                }
+                sub_category_data_list.append(sub_category_data)
+
+            result['sub_category_data_list'] = sub_category_data_list
+
+            return JsonResponse({'message' : 'SUCCESS','result':result}, status = 201)
+
+        # except KeyError:
+        #     return JsonResponse({"message": "KEY ERROR"}, status= 400)
 
 class ProductListView(View):
     def get(self,request):
