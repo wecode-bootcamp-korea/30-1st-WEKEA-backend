@@ -167,7 +167,7 @@ def insert_orderProducts_cart():
                 order_status_id=row[16]
                 user_id=row[17]
                 product_information_id=row[18]
-                order_status_id=row[19]
+
                 OrderProduct.objects.create(quantity=quantity,order_status_id=order_status_id,user_id=user_id,product_information_id=product_information_id)
                 
 def insert_reviews():
