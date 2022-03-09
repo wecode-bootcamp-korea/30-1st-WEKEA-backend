@@ -68,18 +68,19 @@ def get_product_data(sort_option,q,limit,offset):
                 product_image_list  = [image_object.image_url for image_object in product_object.image_set.all()]
                          
                 remaining_stock     = product_object.productinformation_set.all().aggregate(Sum('remaining_stock'))['remaining_stock__sum']
-                
+                print( )
                 product_data = {
-                        'name'           : product_object.name,
-                        'price'          : int(product_object.price),
-                        'description'    : product_object.description,
-                        'average_rating' : floor(average_rating),
-                        'image_list'     : product_image_list,
-                        'store_list'     : product_store_list,
-                        'color_list'     : product_color_list,
-                        'size_list'      : product_size_list,
-                        'remaining_stock' : remaining_stock,
-                        'discount'        : product_object.discount.rate
+                        'name'             : product_object.name,
+                        'price'            : int(product_object.price),
+                        'description'      : product_object.description,
+                        'average_rating'   : floor(average_rating),
+                        'image_list'       : product_image_list,
+                        'store_list'       : product_store_list,
+                        'color_list'       : product_color_list,
+                        'size_list'        : product_size_list,
+                        'remaining_stock'  : remaining_stock,
+                        'discount'         : product_object.discount.rate,
+                        'discounted_price' : int(product_object.price) -  int(int(product_object.price) * product_object.discount.rate / 100)
                         }           
                 
                 product_data_list.append(product_data) 
