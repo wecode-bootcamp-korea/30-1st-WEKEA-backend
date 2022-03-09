@@ -30,9 +30,10 @@ class ProductListView(View):
             if filter_boolean == 'False': #False 일 때 프론트에서 get_defualt_filtering_options을 요구하는 것으로 합의 됨
                 result['default_filtering_options'] = get_defualt_filtering_options (sub_category_id)
             
-            SubCategory_object          = SubCategory.objects.get(id=filter_options['sub_category_id'])
-            product_hierarchy           = SubCategory_object.main_category.name+"/"+SubCategory_object.name
-            result['product_hierarchy'] = product_hierarchy
+            SubCategory_object            = SubCategory.objects.get(id=filter_options['sub_category_id'])
+            product_hierarchy             = SubCategory_object.main_category.name+"/"+SubCategory_object.name
+            result['product_hierarchy']   = product_hierarchy 
+            result['product_description'] = SubCategory_object.description
             
             return JsonResponse({'message' : 'SUCCESS','result':result}, status = 201)
 
