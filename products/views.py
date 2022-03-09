@@ -67,8 +67,7 @@ def get_product_data(sort_option,q,limit,offset):
                 
                 product_image_list  = [image_object.image_url for image_object in product_object.image_set.all()]
                          
-                remaining_stock     = product_object.productinformation_set.all().aggregate(Sum('remaining_stock'))['remaining_stock__sum']
-                print( )
+                remaining_stock     = product_object.productinformation_set.all().aggregate(Sum('remaining_stock'))['remaining_stock__sum']  
                 product_data = {
                         'name'             : product_object.name,
                         'price'            : int(product_object.price),
