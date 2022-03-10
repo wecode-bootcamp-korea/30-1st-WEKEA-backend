@@ -133,7 +133,8 @@ class CartView(View):
                 "cart_id"       : cart.id,
                 "quantity"      : cart.quantity,
                 "stock"         : cart.product_information.remaining_stock,
-                "image"         : cart.product_information.product.image_set.all()[0].image_url if len(cart.product_information.product.image_set.all()) != 0 else None,
+                "image"         : cart.product_information.product.image_set.all()[0].image_url\
+                                 if len(cart.product_information.product.image_set.all()) != 0 else None,
                 "main_category" : cart.product_information.product.sub_category.main_category.name,
                 "sub_category"  : cart.product_information.product.sub_category.name,
                 "product_name"  : cart.product_information.product.name,

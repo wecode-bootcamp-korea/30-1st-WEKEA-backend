@@ -40,6 +40,4 @@ def move_order_product(request, cart_id):
             )
         carts.delete()
         return True
-    else:
-        return False
 
