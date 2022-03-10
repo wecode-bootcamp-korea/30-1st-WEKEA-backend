@@ -86,8 +86,8 @@ class CartView(View):
 
             color_id    = data["color_id"]
             product_id  = data["product_id"]
-
             size_id     = data["size_id"]
+
             productinformation = ProductInformation.objects.get(color_id = color_id, size_id = size_id, product_id = product_id)
             remaining_stock    = ProductInformation.objects.get(id = productinformation.id).remaining_stock
 
