@@ -92,6 +92,14 @@ def get_product_data(sort_option,limit,offset,query_prams):
     
     return product_data_list   
 
+import math
+
+from django.db.models import Avg, Sum
+
+from .models      import Product
+from users.models import Review
+
+
 def get_option(product_id):
     product              = Product.objects.get(id = product_id)
     product_informations = product.productinformation_set.all()
@@ -126,7 +134,10 @@ def get_rating_average(product_id):
     product = Product.objects.get(id = product_id)
     reviews = product.review_set.all()
 
+
     rating_average = floor(reviews.aggregate(Avg('rating'))['rating__avg']\
+
+
                     if product.review_set.count() != 0 else 0)
 
     return rating_average
@@ -147,4 +158,5 @@ def get_remaining_stock(product_id):
     remaining_stock = product_informations.aggregate(Sum("remaining_stock"))["remaining_stock__sum"]
 
     return remaining_stock
+
 

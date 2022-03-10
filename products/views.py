@@ -31,6 +31,13 @@ class ProductListView(View):
             return JsonResponse({"message": "KEY ERROR"}, status= 400)
 
 
+from django.http  import JsonResponse
+from django.views import View
+
+from .models      import Product
+from .utils       import get_review_information, get_rating_average, get_discount_price, get_remaining_stock, get_option
+
+
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
@@ -59,4 +66,8 @@ class ProductDetailView(View):
             return JsonResponse({"data" : product_detail_data}, status = 200)
 
         except Product.DoesNotExist:
+
             return JsonResponse({"message" : "DOESNOTEXIST_PRODUCT_ID"}, status = 404)
+
+            
+
