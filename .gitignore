@@ -387,3 +387,4 @@ data_users.csv
 data_products.csv
 db_uploader.py
 dummpy_data.py
+update_sub_category_options.py
