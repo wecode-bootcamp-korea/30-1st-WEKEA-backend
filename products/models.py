@@ -72,3 +72,10 @@ class Size(models.Model):
     
     class Meta:
         db_table = 'sizes'
+
+class DefaultFilteringOption(models.Model):
+    sub_category              = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
+    defualt_filtering_options = models.TextField() 
+    
+    class Meta:
+        db_table = 'default_filtering_options'
