@@ -3,7 +3,6 @@ import math
 from django.db.models import Avg, Sum
 
 from .models      import Product
-from users.models import Review
 
 def get_option(product_id):
     product              = Product.objects.get(id = product_id)
@@ -28,7 +27,7 @@ def get_review_information(product_id):
             "user_email" : email.replace(email[3:email.index("@")],"*" * 4),
             "created_date" : review.created_at.strftime("%Y-%m-%d"),
             "rating" : review.rating,
-            "commnet" : review.comment
+            "comment" : review.comment
         }
         review_list.append(review_information)
 

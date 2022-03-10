@@ -1,6 +1,8 @@
-import re, bcrypt
+import re
 
-from users.models import User
+from django.http import HttpResponse
+
+from users.models import User, Cart, OrderProduct
 
 def is_valid(data):
     email    = data["email"]
@@ -20,4 +22,24 @@ def is_valid(data):
 
     return True
 
+
+def move_order_product(request, cart_id):
+    user = request.user
+    
+    if cart_id == 0 :
+        carts = Cart.objects.filter(user_id = user.id)
+
+        for cart in carts:
+            cart.product_information.remaining_stock -= cart.quantity
+            cart.product_information.save()
+            OrderProduct.objects.create(
+                quantity = cart.quantity,
+                order_status_id = 1, 
+                product_information_id = cart.product_information.id, 
+                user_id = user.id
+            )
+        carts.delete()
+        return True
+    else:
+        return False
 
