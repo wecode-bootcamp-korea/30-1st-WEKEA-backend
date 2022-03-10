@@ -1,19 +1,16 @@
 from django.db.models           import Q,Avg,Max,Sum
-from django.shortcuts           import render
 from .models                    import Product
 from math                       import floor
 
-def get_defualt_filtering_options (sub_category_id):
+def get_default_filtering_options(sub_category_id):
     defualt_store_options = []
     defualt_color_options = []
     defualt_size_options  = []
     
     product_list = Product.objects.filter(sub_category_id=sub_category_id)
     
-    defualt_max_price = product_list.aggregate(Max('price'))['price__max']
-    if not defualt_max_price:
-        defualt_max_price=0
-        
+    defualt_max_price = product_list.aggregate(Max('price'))['price__max'] if product_list.aggregate(Max('price'))['price__max'] else 0
+    
     for product_object in product_list:
         productinformations=product_object.productinformation_set.all()
         
@@ -27,39 +24,56 @@ def get_defualt_filtering_options (sub_category_id):
     
     default_filtering_options= {
         'max_price': int(defualt_max_price), 
-        'store': list(set(defualt_store_options)),
-        'color': list(set(defualt_color_options)),
-        'size' : list(set(defualt_size_options))
+        'store'    : list(set(defualt_store_options)),
+        'color'    : list(set(defualt_color_options)),
+        'size'     : list(set(defualt_size_options))
         }
 
     return default_filtering_options
 
 
-def get_product_data(sort_option,q,limit,offset):
+def get_product_data(sort_option,limit,offset,query_prams):
     product_data_list  = []
     product_image_list = []   
-     
-    product_list = Product.objects.filter(q).distinct().annotate(average_rating=Avg('review__rating'))
+
+    q  =Q(sub_category_id=query_prams['sub_category_id'][0])   
     
-    sort_option_dict = {'high-price':'-price', 'low-price':'price' ,'created':'-created_at','rating':'-average_rating'}   
-    if sort_option_dict.get(sort_option,''):
-        product_list     = product_list.order_by(sort_option_dict[sort_option])
+    if query_prams.get('discount',None):    
+        discount_list = [int(discount_rate) for discount_rate in query_prams['discount'][0] ]
+        q &=Q(discount__rate__in = discount_list)
+
+    field_lookup_dict= {
+        'store'     : 'productinformation__store__name__in',
+        'size'      : 'productinformation__size__size__in',
+        'color'     : 'productinformation__color__name__in',
+        'min_price' : 'price__gte',
+        'max_price' :'price__lte' 
+        }
+        
+    filter_set = { field_lookup_dict.get(key) :value for key, value  in query_prams.items() }
+    filter_set.pop(None)
+    
+    product_list = Product.objects.filter(q,**filter_set).distinct().annotate(average_rating=Avg('review__rating'))
+    
+    sort_option_dict = {
+        'high-price' : '-price', 
+        'low-price'  : 'price' ,
+        'created'    : '-created_at',
+        'rating'     : '-average_rating',
+        'default'    : 'id'
+        }   
+
+    product_list = product_list.order_by(sort_option_dict[sort_option])
     
     for product_object in product_list[offset:offset+limit]:    
-                product_image_list = [] 
-                
-                average_rating=product_object.average_rating
-                if not average_rating:
-                    average_rating=0
-
+                average_rating     = product_object.average_rating if product_object.average_rating  else 0
+                product_image_list  = [image_object.image_url for image_object in product_object.image_set.all()]
                 productinformations = product_object.productinformation_set.filter(remaining_stock__gt=0)
                 product_store_list  = list(set([productinformation.store.name for productinformation in productinformations]))
                 product_color_list  = list(set([productinformation.color.name for productinformation in productinformations]))
-                product_size_list   = list(set([productinformation.size.size for productinformation in productinformations]))
-                
-                product_image_list  = [image_object.image_url for image_object in product_object.image_set.all()]
-                         
+                product_size_list   = list(set([productinformation.size.size for productinformation in productinformations]))          
                 remaining_stock     = product_object.productinformation_set.all().aggregate(Sum('remaining_stock'))['remaining_stock__sum']  
+
                 product_data = {
                         'name'             : product_object.name,
                         'price'            : int(product_object.price),
@@ -71,28 +85,11 @@ def get_product_data(sort_option,q,limit,offset):
                         'size_list'        : product_size_list,
                         'remaining_stock'  : remaining_stock,
                         'discount'         : product_object.discount.rate,
-                        'discounted_price' : int(product_object.price) -  int(int(product_object.price) * product_object.discount.rate / 100)
+                        'discounted_price' : int(product_object.price) - int(int(product_object.price) * product_object.discount.rate / 100)
                         }           
                 
                 product_data_list.append(product_data) 
     
     return product_data_list   
 
-def get_Q(filter_options):
-    q=Q(sub_category_id=filter_options['sub_category_id'])   
 
-    if filter_options['store']:
-        q &=Q(productinformation__store__name__in = filter_options['store']) 
-    if filter_options['color']: 
-        q &=Q(productinformation__color__name__in = filter_options['color'])
-    if filter_options['size']:    
-        q &=Q(productinformation__size__size__in = filter_options['size'])
-    if filter_options['min_price']:  
-        q &=Q(price__gte = filter_options['min_price'] )
-    if filter_options['max_price']:    
-        q &=Q(price__lte = filter_options['max_price'] )
-    if filter_options['discount']:    
-        discount_list = [int(discount_rate) for discount_rate in filter_options['discount'] ]
-        q &=Q(discount__rate__in = discount_list)
-    
-    return q
