@@ -78,4 +78,4 @@ class DefaultFilteringOption(models.Model):
     defualt_filtering_options = models.TextField() 
     
     class Meta:
-        db_table = 'default_filtering-options'
+        db_table = 'default_filtering_options'

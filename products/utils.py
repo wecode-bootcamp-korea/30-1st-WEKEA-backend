@@ -92,12 +92,6 @@ def get_product_data(sort_option,limit,offset,query_prams):
     
     return product_data_list   
 
-import math
-
-from django.db.models import Avg, Sum
-
-from .models      import Product
-
 
 def get_option(product_id):
     product              = Product.objects.get(id = product_id)
